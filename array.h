@@ -34,5 +34,10 @@
 arr(int) build(arr(str) array, int n);
 
 void printa(arr(int) a, int n);
+void printda(arr(double) a, int n);
+
+arr(double) build_double(str s, int n);
+// require: s contains n space-separated real numbers
+// ensure: result contains the n parsed numbers in order
 
 #endif

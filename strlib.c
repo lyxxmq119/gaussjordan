@@ -61,3 +61,43 @@ int str2nat(str sentence, int i, int j)
 
     return r;
 }
+
+double str2dou(str sentence, int i, int j) {
+    int k = i;
+    double sign = 1.0;
+    
+    if (k < j && sentence[k] == '-') {
+        sign = -1.0;
+        k++;
+    } else if (k < j && sentence[k] == '+') {
+        k++;
+    }
+    
+    int dot_pos = search(sentence, k, '.');
+    
+    double result = 0.0;
+    
+    if (dot_pos >= j) {
+        result = (double)str2nat(sentence, k, j);
+    } else {
+        int int_part = 0;
+        if (dot_pos > k) {
+            int_part = str2nat(sentence, k, dot_pos);
+        }
+        
+        double dec_part = 0.0;
+        if (dot_pos + 1 < j) {
+            int fraction = str2nat(sentence, dot_pos + 1, j);
+            int len_frac = j - (dot_pos + 1);
+            
+            double divisor = 1.0;
+            for(int p = 0; p < len_frac; p++) {
+                divisor *= 10.0;
+            }
+            dec_part = fraction / divisor;
+        }
+        result = (double)int_part + dec_part;
+    }
+    
+    return result * sign;
+}

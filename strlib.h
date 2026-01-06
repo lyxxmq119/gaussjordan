@@ -36,4 +36,8 @@ int str2nat(str sentence, int i, int j);
 // require: s[i:j) represents a number n
 // ensure: output = n
 
+double str2dou(str sentence, int i, int j);
+// require: sentence[i:j] represents a real number in decimal format
+// ensure: result is the numeric value of the substring sentence[i:j]
+
 #endif

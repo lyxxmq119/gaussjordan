@@ -7,8 +7,7 @@
 #define BUF_SIZE 1024
 
 file new_file(str path) {
-    file res = malloc(sizeof(file));
-    res = fopen(path,"r");
+    file res = fopen(path,"r");
     return res;
 }
 
@@ -27,7 +26,7 @@ int has_next_line(file f) {
 
 str get_next_line(file f) {
     str res = new(char, BUF_SIZE);
-    size_t length;
+    size_t length = BUF_SIZE;
     getline(&res, &length, f);
     return res;
 }

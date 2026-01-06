@@ -1,70 +1,116 @@
-fun gauss_jordan(A:array(num))-> R:array(num)
-! require:
-       size(A) = [n][n+1]^n>0
+fun swap_rows(Matrix: arr(arr(num)), r1: num, r2: num)
+!   require: 0 <= r1 < len(Matrix) ^ 0 <= r2 < len(Matrix)
 
-//initial state
-i :=0 //current row being proceessed
-col :=0
-rank :=0
-//main elimination loop
-while 0<i<=n ^ 0<col<=n^ 0<rank<=i do
-! invariant :0<i<=n ^0<col<=n ^0<rank<=i^each row should be row-reduced echelon form
-        //find a pivot in the current column
-        pivot_row :=i
-        while pivot_row<n ^ A[pivot_row][col]==0 do
-        ! invariant:0<pivot_row<=n ^0<col<=n 
-                pivot_row=pivot_row+1
-        if pivot_row =n then
-                col :=col + 1
-        // swap row to bring the pivot to current row
-        if pivot!= i then
-                swap_row(A,i,pivot_row)
+    // Swaps row r1 and row r2 in the matrix
+    temp := Matrix[r1]
+    Matrix[r1] := Matrix[r2]
+    Matrix[r2] := temp
 
-        j :=col
-        //pivot normalization:
-        pivot_value :=A[i][col]
-         while j<=n do
-        ! invariant :col<=j<=n
-        A[i][j] :=A[i][j]/pivot_value
-        j :=j+1
+!   ensure: Matrix[r1] = old(Matrix[r2]) ^ Matrix[r2] = old(Matrix[r1])
 
-        row :=0
-        h :=col
-        // eliminate the column in all other rows to 0
-        while row<n do
-        !invariant :0<=row<=n-1
-                if row!=i ^A[row][col]!=0 then
-                        element :=A[row][col]
-                        while h<=n do
-                        ! invariant :col<=h<=n
-                        A[row][h]:=A[row][h]- element*A[i][h]
-                        h :=h+1
-i :=i+1
-col :=col+1
-rank :=rank+1
+fun find_pivot(Matrix: arr(arr(num)), start_row: num, col: num, n: num) -> pivot: num
+!   require: 0 <= start_row <= n ^ 0 <= col <= n ^ len(Matrix) = n
 
-//solution classification
-inconsistent :=false
-row :=rank
-while row < n do
-! invariant :rank<=row<n
-        if A[row][n]!=0 then
-                inconsistent :=true
-if inconsitent then
-                result :='no unqiue solution‘
-elif rank=n then
-        solution :=new array[n] of real numbers
-        k :=0
-        while k<n do
-        ! invariant : 0<=k<n
-                solution[k]= A[k][n]
-                k :=k+1
-        result :=solution
-else   //has infinitely solutions
-        result :='no unique solution'
+    // Finds the first row >= start_row that has a non-zero value in the specified column
+    pivot := start_row
+    while pivot < n and Matrix[pivot][col] == 0 do
+    !   invariant: Matrix[k][col] == 0 for all k, start_row <= k < pivot
+        pivot := pivot + 1
+    
+    return pivot
 
-! ensure:
-the system has a unique solution, print: value1 . . . valuen.
-v
-the system does not have a unique solution, print: no unique solution.
+!   ensure: start_row <= pivot <= n ^ (pivot < n => Matrix[pivot][col] != 0) ^ (forall k in [start_row, pivot). Matrix[k][col] == 0)
 
+fun normalize_pivot_row(Matrix: arr(arr(num)), row: num, col: num, n: num)
+!   require: 0 <= row < n ^ 0 <= col <= n ^ Matrix[row][col] != 0
+
+    // Normalize the pivot row so the pivot becomes 1
+    divisor := Matrix[row][col]
+    j := col
+    while j <= n do
+    !   invariant: col <= j <= n + 1 ^ for all k in [col, j), Matrix[row][k] is divided by divisor
+        Matrix[row][j] := Matrix[row][j] / divisor
+        j := j + 1
+
+!   ensure: Matrix[row][col] = 1 ^ (for all k in [col+1, n]. Matrix[row][k] is divided by the original value of Matrix[row][col])
+
+fun eliminate_rows(Matrix: arr(arr(num)), pivot_row: num, col: num, n: num)
+!   require: 0 <= pivot_row < n ^ 0 <= col <= n ^ Matrix[pivot_row][col] = 1 
+    ^ Matrix[pivot_row][j] = 0 for all 0<=j<col
+
+    // Eliminate entries in other rows in the current column
+    k := 0
+    while k < n do
+    !   invariant: 0 <= k <= n ^ Matrix[r][col] = 0 for all 0<=r<k and r!=pivot_row
+        if k != pivot_row and Matrix[k][col] != 0 then
+            factor := Matrix[k][col]
+            j := col
+            while j <= n do
+            !   invariant: col <= j <= n + 1 ^ Matrix ^ Matrix[k][c] is proceded for all 0<=c<j
+                Matrix[k][j] := Matrix[k][j] - factor * Matrix[pivot_row][j]
+                j := j + 1
+        k := k + 1
+
+!   ensure: forall k in [0, n), k != pivot_row => Matrix[k][col] = 0
+
+fun has_unique_solution(n: num, Matrix: arr(arr(num)), num_pivots: num) -> unique: bool
+!   require: n > 0 ^ len(Matrix) = n ^ len(Matrix[i]) = (n + 1) for all 0<=i<n
+
+    // Check for inconsistency (e.g., 0 = non-zero)
+    inconsistent := false
+    i := num_pivots
+    while i < n do
+    !   invariant: num_pivots <= i <= n ^ inconsistent is true iff a contradiction found in rows num_pivots..i-1
+        if Matrix[i][n] != 0 then
+            inconsistent := true
+        i := i + 1
+
+    // A unique solution exists if and only if we have n pivots and no inconsistency
+    unique := (num_pivots == n) and (not inconsistent)
+
+!   ensure: unique = true iff (rank = n and system is consistent)
+
+fun solve(n: num, Matrix: arr(arr(num))) -> result: arr(num)
+!   require: n > 0 ^ len(Matrix) = n ^ len(Matrix[i]) = (n + 1) for all 0<=i<n
+
+    // Initial state
+    row := 0
+    col := 0
+    num_pivot := 0
+    
+    // Gauss-Jordan Elimination
+    while row < n and col < n do
+    !   invariant: Matrix is in reduced row echelon form for the processed rows and columns
+                  ^ 0 <= row <= n ^ 0 <= col <= n
+        
+        pivot := find_pivot(Matrix, row, col, n)
+            
+        if pivot == n then
+            // No pivot in this column, move to next column
+            col := col + 1 
+        else
+            num_pivot := num_pivot + 1
+            // Swap rows to bring the pivot to the current row
+            if pivot != row then
+                swap_rows(Matrix, row, pivot)
+            
+            normalize_pivot_row(Matrix, row, col, n)
+            eliminate_rows(Matrix, row, col, n)
+            
+            row := row + 1
+            col := col + 1
+
+    // Determine the result type and construct the returning array
+    result := []
+    if not has_unique_solution(n, Matrix, num_pivot) then
+        result[0] = 0
+    else
+        result[0] = 1
+        // construct the result
+        i := 0
+        while i < n do
+        !   invariant: 0 <= i <= n
+            result := Matrix[i][n]
+
+!   ensure: (result[0]=1 ^ result[1:n] is a solution for the system) iff the system has a unique solution
+    
