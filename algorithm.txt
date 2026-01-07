@@ -1,15 +1,16 @@
-fun swap_rows(Matrix: arr(arr(num)), r1: num, r2: num)
-!   require: 0 <= r1 < len(Matrix) ^ 0 <= r2 < len(Matrix)
+// Swaps row r1 and row r2 in the matrix
+fun swap_rows(Matrix: arr(arr(num)), n: num, r1: num, r2: num)
+!   require: Matrix is a n*(n+1) array ^ 0 <= r1 < len(Matrix) ^ 0 <= r2 < len(Matrix)
 
-    // Swaps row r1 and row r2 in the matrix
-    temp := Matrix[r1]
-    Matrix[r1] := Matrix[r2]
-    Matrix[r2] := temp
+    for every i in [0:n+1) do
+        temp := Matrix[r1][i]
+        Matrix[r1][i] := Matrix[r2][i]
+        Matrix[r2][i] := temp
 
-!   ensure: Matrix[r1] = old(Matrix[r2]) ^ Matrix[r2] = old(Matrix[r1])
+!   ensure: the r1-th and r2-th rows are switched
 
 fun find_pivot(Matrix: arr(arr(num)), start_row: num, col: num, n: num) -> pivot: num
-!   require: 0 <= start_row <= n ^ 0 <= col <= n ^ len(Matrix) = n
+!   require: Matrix is a n*(n+1) array ^ 0 <= start_row <= n ^ 0 <= col <= n ^ len(Matrix) = n
 
     // Finds the first row >= start_row that has a non-zero value in the specified column
     pivot := start_row
@@ -22,7 +23,7 @@ fun find_pivot(Matrix: arr(arr(num)), start_row: num, col: num, n: num) -> pivot
 !   ensure: start_row <= pivot <= n ^ (pivot < n => Matrix[pivot][col] != 0) ^ (forall k in [start_row, pivot). Matrix[k][col] == 0)
 
 fun normalize_pivot_row(Matrix: arr(arr(num)), row: num, col: num, n: num)
-!   require: 0 <= row < n ^ 0 <= col <= n ^ Matrix[row][col] != 0
+!   require: Matrix is a n*(n+1) array ^ 0 <= row < n ^ 0 <= col <= n ^ Matrix[row][col] != 0
 
     // Normalize the pivot row so the pivot becomes 1
     divisor := Matrix[row][col]
@@ -35,7 +36,7 @@ fun normalize_pivot_row(Matrix: arr(arr(num)), row: num, col: num, n: num)
 !   ensure: Matrix[row][col] = 1 ^ (for all k in [col+1, n]. Matrix[row][k] is divided by the original value of Matrix[row][col])
 
 fun eliminate_rows(Matrix: arr(arr(num)), pivot_row: num, col: num, n: num)
-!   require: 0 <= pivot_row < n ^ 0 <= col <= n ^ Matrix[pivot_row][col] = 1 
+!   require: Matrix is a n*(n+1) array ^ 0 <= pivot_row < n ^ 0 <= col <= n ^ Matrix[pivot_row][col] = 1 
     ^ Matrix[pivot_row][j] = 0 for all 0<=j<col
 
     // Eliminate entries in other rows in the current column
@@ -51,27 +52,10 @@ fun eliminate_rows(Matrix: arr(arr(num)), pivot_row: num, col: num, n: num)
                 j := j + 1
         k := k + 1
 
-!   ensure: forall k in [0, n), k != pivot_row => Matrix[k][col] = 0
-
-fun has_unique_solution(n: num, Matrix: arr(arr(num)), num_pivots: num) -> unique: bool
-!   require: n > 0 ^ len(Matrix) = n ^ len(Matrix[i]) = (n + 1) for all 0<=i<n
-
-    // Check for inconsistency (e.g., 0 = non-zero)
-    inconsistent := false
-    i := num_pivots
-    while i < n do
-    !   invariant: num_pivots <= i <= n ^ inconsistent is true iff a contradiction found in rows num_pivots..i-1
-        if Matrix[i][n] != 0 then
-            inconsistent := true
-        i := i + 1
-
-    // A unique solution exists if and only if we have n pivots and no inconsistency
-    unique := (num_pivots == n) and (not inconsistent)
-
-!   ensure: unique = true iff (rank = n and system is consistent)
+!   ensure: Matrix[k][col] = 0 for all k in [0, n), k != pivot_row
 
 fun solve(n: num, Matrix: arr(arr(num))) -> result: arr(num)
-!   require: n > 0 ^ len(Matrix) = n ^ len(Matrix[i]) = (n + 1) for all 0<=i<n
+!   require: Matrix[k][col] = 0 ^ n > 0 ^ len(Matrix) = n ^ len(Matrix[i]) = (n + 1) for all 0<=i<n
 
     // Initial state
     row := 0
@@ -102,15 +86,13 @@ fun solve(n: num, Matrix: arr(arr(num))) -> result: arr(num)
 
     // Determine the result type and construct the returning array
     result := []
-    if not has_unique_solution(n, Matrix, num_pivot) then
+    if num_pivot < n then
         result[0] = 0
     else
         result[0] = 1
         // construct the result
-        i := 0
-        while i < n do
-        !   invariant: 0 <= i <= n
-            result := Matrix[i][n]
+        for every i in [0, n) do
+            result[i+1] := Matrix[i][n]
 
 !   ensure: (result[0]=1 ^ result[1:n] is a solution for the system) iff the system has a unique solution
     

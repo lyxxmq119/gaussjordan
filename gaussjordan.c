@@ -16,7 +16,7 @@ arr(double) solve(int n, arr(arr(double)) Matrix) {
         } else {
             num_pivot++;
             if (pivot != row) {
-                swap_rows(Matrix, row, pivot);
+                swap_rows(Matrix, n, row, pivot);
             }
             normalize_pivot_row(Matrix, row, col, n);
             eliminate_rows(Matrix, row, col, n);
@@ -38,11 +38,12 @@ arr(double) solve(int n, arr(arr(double)) Matrix) {
     return result;
 }
 
-// TODO)) Investigate the feasibility.
-void swap_rows(arr(arr(double)) Matrix, int r1, int r2) {
-    arr(double) temp = Matrix[r1];
-    Matrix[r1] = Matrix[r2];
-    Matrix[r2] = temp;
+void swap_rows(arr(arr(double)) Matrix, int n, int r1, int r2) {
+    for (int j = 0; j < n + 1; j++) {
+        double temp = Matrix[r1][j];
+        Matrix[r1][j] = Matrix[r2][j];
+        Matrix[r2][j] = temp;
+    }
 }
 
 int find_pivot(arr(arr(double)) Matrix, int start_row, int col, int n) {
@@ -66,9 +67,11 @@ void eliminate_rows(arr(arr(double)) Matrix, int pivot_row, int col, int n) {
         if (k != pivot_row && Matrix[k][col] != 0) {
             double factor = Matrix[k][col];
             int j = col;
-            // TODO)) Handle the case when the difference is very small
             while (j <= n) {
                 Matrix[k][j] = Matrix[k][j] - factor * Matrix[pivot_row][j];
+                if (Matrix[k][j] < 0.0000000001 && Matrix[k][j] > -0.0000000001) {
+                    Matrix[k][j] = 0.0;
+                }
                 j++;
             }
         }
