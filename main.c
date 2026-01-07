@@ -19,9 +19,10 @@ int main(int argc, arr(str) argv)
         for(int i = 0; i < n; i++) {
             if(has_next_line(f)) {
                 line = get_next_line(f);
-                if (line[len(line)-1] == '\n') {
-                    line[len(line)-1] = '\0';
-                }
+                int new_line = search(line, 0, '\n');
+                if (new_line < len(line)) {
+                    line[new_line] = '\0';
+                } 
                 matrix[i] = build_double(line, n + 1);
             }
         }

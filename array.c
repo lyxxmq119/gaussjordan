@@ -42,19 +42,18 @@ void printda(arr(double) a, int n)
 
 
 arr(double) build_double(str s, int n) {
-    int len_s = len(s);
-    arr(double) res = new(double, n);
+    arr(double) result = new(double, n);
+
+    int start = 0;
+    int end;
     
-    int i = 0;
-    int k = 0;
-    while (i < len_s && k < n) {
-        while(i < len_s && s[i] == ' ') i++;
-        if (i < len_s) {
-            int start = i;
-            int end = search(s, start, ' ');
-            res[k++] = str2dou(s, start, end);
-            i = end;
-        }
+    for (int i = 0; i < n; i++) {
+        end = search(s, start, ' ');
+        str sliced_string = slice(s, start, end);
+        result[i] = atof(sliced_string);
+        free(sliced_string);
+        start = end + 1;
     }
-    return res;
+    
+    return result;
 }

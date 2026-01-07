@@ -1,15 +1,12 @@
 fun build_double(s: str, n: num) -> result: arr(num)
-!   require: s contains n real numbers separated by one space, and s ends with '\n'
+!   require: s contains n real numbers separated by one space
 
     result := [] // new array of length n
     
     start := 0
     for every i in [0, n) do
     !   invariant: result[0:i) matches the first i+1 real numbers in s
-        if i < n-1
-            end := search(s, start, ' ')
-        else
-            end := search(s, start, '\n') // s ends with '\n'
+        end := search(s, start, ' ')
         result[i] := str2double(s[start:end)) // s[start:end) excludes the ending whitespace
         start := end + 1
 

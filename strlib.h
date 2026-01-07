@@ -36,8 +36,8 @@ int str2nat(str sentence, int i, int j);
 // require: s[i:j) represents a number n
 // ensure: output = n
 
-double str2dou(str sentence, int i, int j);
-// require: sentence[i:j] represents a real number in decimal format
-// ensure: result is the numeric value of the substring sentence[i:j]
+str slice(str s, int start, int end);
+// require: 0 <= start <= end <= len(s)
+// ensure: output = substring of s from start (inclusive) to end (exclusive)
 
 #endif
