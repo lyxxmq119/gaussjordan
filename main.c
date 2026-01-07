@@ -32,7 +32,14 @@ int main(int argc, arr(str) argv)
         if (result[0] == 0.0) {
             printf("no unique solution\n");
         } else {
-            printda(result + 1, n);
+            for (int i=1; i<=n; i++) {
+                printf("%f", result[i]);
+                if (i < n) {
+                    printf(" ");
+                } else {
+                    printf("\n");
+                }
+            };
         }
         
         // Cleanup
@@ -40,7 +47,7 @@ int main(int argc, arr(str) argv)
             free(matrix[i]);
         }
         free(matrix);
-        // free(result);
+        free(result);
     }
 
     return 0;

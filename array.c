@@ -27,20 +27,6 @@ void printa(arr(int) a, int n)
 }
 
 
-void printda(arr(double) a, int n)
-{
-    for(int i=0; i<n; i++)
-    {
-        printf("%g", a[i]);
-        if (i < n - 1) {
-            printf(" ");
-        }
-    };
-    
-    printf("\n");
-}
-
-
 arr(double) build_double(str s, int n) {
     arr(double) result = new(double, n);
 
