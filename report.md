@@ -166,22 +166,20 @@ The implementation follows the design closely, separating the elimination logic 
 ### 4.2 List of Functions
 The implementation is modularized across several files:
 
-**`gaussjordan.c`**
--   `solve`: The driver function.
--   `find_pivot`, `swap_rows`, `normalize_pivot_row`, `eliminate_rows`: Helper functions for row operations.
-
-**`strlib.c` & `array.c`**
--   `build_double`: Input parsing (string -> double array).
--   `slice`, `search`: String utility functions.
+- In `gaussjordan.c`
+    - `solve`: The core algorithm.
+    - `find_pivot`, `swap_rows`, `normalize_pivot_row`, `eliminate_rows`: Helper functions for row operations.
+- In `strlib.c`
+    - `arr(double) build_double(str s, int n)`: Building a array of double from a given string.
+- In `array.c`
+    - `str slice(str s, int start, int end)`: String utility functions.
 
 **`main.c`**
--   `main`: Entry point handling file I/O and result printing.
+-   `main`: Handles the input and output.
 
 ### 4.3 Input Parsing
-**Design Evolution:**
-At first, we thought we needed to implement `str2dou` with manual decimal parsing (as shown in early pseudo-code drafts). However, we later realized that using `slice` combined with the standard library function `atof` (ASCII to float) is much more efficient and less error-prone. We adopted this improved approach in the final implementation.
+At first, we thought we needed to implement `str2dou` with manual decimal parsing. We even wrote pseudo-code drafts for it, that uses `str2nat` to parse the integer part and fraction part separately and compute the double value. However, we later realized that using the function `atof` is much more efficient. We adopted this improved approach in the final implementation. We also implemented the `slice` function that cuts a string.
 
-**Pseudo-code for Input Parsing:**
 ```plaintext
 fun build_double(s: str, n: num) -> result: arr(num)
 !   require: s contains n real numbers separated by one space
