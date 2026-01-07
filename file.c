@@ -26,7 +26,7 @@ int has_next_line(file f) {
 
 str get_next_line(file f) {
     str res = new(char, BUF_SIZE);
-    size_t length = BUF_SIZE;
+    size_t length;
     getline(&res, &length, f);
     return res;
 }
