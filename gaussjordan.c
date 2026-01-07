@@ -69,9 +69,6 @@ void eliminate_rows(arr(arr(double)) Matrix, int pivot_row, int col, int n) {
             int j = col;
             while (j <= n) {
                 Matrix[k][j] = Matrix[k][j] - factor * Matrix[pivot_row][j];
-                if (Matrix[k][j] < 0.0000000001 && Matrix[k][j] > -0.0000000001) {
-                    Matrix[k][j] = 0.0;
-                }
                 j++;
             }
         }
