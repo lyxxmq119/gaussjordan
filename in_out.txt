@@ -1,75 +1,25 @@
-fun str2dou(sentence: str, i: num, j: num) -> result: num
-!   require: sentence[i:j] represents a real number in decimal format
-
-    k := i
-    sign := 1.0
-    
-    // Check for sign
-    if k < j and sentence[k] == '-' then
-        sign := -1.0
-        k := k + 1
-    elif k < j and sentence[k] == '+' then
-        k := k + 1
-        
-    // Find decimal point position
-    dot_pos := search(sentence, k, '.')
-    
-    // Only consider dot if it is within the bounds [k, j)
-    if dot_pos >= j then
-        // Integer only
-        result := str2nat(sentence, k, j)
-    else
-        // Integer part
-        int_part := 0
-        if dot_pos > k then
-            int_part := str2nat(sentence, k, dot_pos)
-            
-        // Decimal part
-        dec_part := 0.0
-        if dot_pos + 1 < j then
-            fraction := str2nat(sentence, dot_pos + 1, j)
-            
-            // Calculate divisor 10^(number of digits)
-            length_fraction := j - (dot_pos + 1)
-            p := 0
-            divisor := 1.0
-            while p < length_fraction do
-            !   invariant: 0 <= p <= length_fraction ^ divisor = 10^p
-                divisor := divisor * 10.0
-                p := p + 1
-            
-            dec_part := fraction / divisor
-            
-        result := int_part + dec_part
-        
-    result := result * sign
-!   ensure: result is the numeric value of the substring sentence[i:j]
-
 fun build_double(s: str, n: num) -> result: arr(num)
-!   require: s contains n space-separated real numbers
+!   require: s contains n real numbers separated by one space, and s ends with '\n'
 
-    result := new array(num, n)
+    result := [] // new array of length n
     
-    i := 0
-    k := 0
-    len_s := len(s)
-    
-    // Parse numbers
-    while i < len_s and k < n do
-    !   invariant: 0 <= k <= n ^ result[0..k-1] matches the first k numbers in s
-        
-        // Skip whitespace
-        while i < len_s and s[i] == ' ' do
-        !   invariant: i <= len_s
-            i := i + 1
-            
-        if i < len_s then
-            start := i
-            // Find end of number using search
+    start := 0
+    for every i in [0, n) do
+    !   invariant: result[0:i) matches the first i+1 real numbers in s
+        if i < n-1
             end := search(s, start, ' ')
-            
-            result[k] := str2dou(s, start, end)
-            k := k + 1
-            i := end
-            
+        else
+            end := search(s, start, '\n') // s ends with '\n'
+        result[i] := str2double(s[start:end)) // s[start:end) excludes the ending whitespace
+        start := end + 1
+
 !   ensure: result contains the n parsed numbers in order
+
+fun slice(s: str, start, end: num) -> result: str
+!   require: 0<=start<=end<=len(s)
+
+    result = ""
+    for every i in [start:end) do
+        result[i] = s[i]
+
+!   ensure: result = s[start:end)

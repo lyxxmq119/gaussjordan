@@ -27,7 +27,7 @@ arr(double) solve(int n, arr(arr(double)) Matrix) {
     }
     
     arr(double) result = new(double, n + 1);
-    if (!has_unique_solution(n, Matrix, num_pivot)) {
+    if (num_pivot < n) {
         result[0] = 0;
     } else {
         result[0] = 1;
@@ -55,10 +55,8 @@ int find_pivot(arr(arr(double)) Matrix, int start_row, int col, int n) {
 
 void normalize_pivot_row(arr(arr(double)) Matrix, int row, int col, int n) {
     double divisor = Matrix[row][col];
-    int j = col;
-    while (j <= n) {
+    for (int j = col; j <= n; j++) {
         Matrix[row][j] = Matrix[row][j] / divisor;
-        j++;
     }
 }
 
@@ -78,13 +76,3 @@ void eliminate_rows(arr(arr(double)) Matrix, int pivot_row, int col, int n) {
     }
 }
 
-// Check for unique solution
-// A unique solution exists if there are n pivots and no contradictory equations.
-// Returns 1 if unique solution exists, 0 otherwise.
-int has_unique_solution(int n, arr(arr(double)) Matrix, int num_pivots) {
-    if (num_pivots != n) return 0;
-    for (int i = num_pivots; i < n; i++) {
-        if (Matrix[i][n] != 0) return 0;
-    }
-    return 1;
-}
